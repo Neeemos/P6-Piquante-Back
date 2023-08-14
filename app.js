@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const userRoutes = require("./routes/user");
 const sauceRoutes = require("./routes/sauce");
+const path = require('path');
 /// Header  Cross Origin Resource Sharing
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -36,4 +37,6 @@ app.use((req, res, next) => {
 
 app.use('/api/auth',  userRoutes);
 app.use('/api',  sauceRoutes);
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 module.exports = app;
