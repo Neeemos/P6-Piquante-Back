@@ -1,5 +1,4 @@
 const sauce = require("../models/sauce");
-const mongodb = require("../db");
 const fs = require("fs");
 
 exports.getAllSauce = (req, res, next) => {

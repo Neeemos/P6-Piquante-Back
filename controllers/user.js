@@ -1,6 +1,5 @@
 const user = require("../models/user");
 const bcrypt = require("bcrypt");
-const mongodb = require("../db");
 const jwt = require("jsonwebtoken");
 
 exports.createUser = (req, res, next) => {
