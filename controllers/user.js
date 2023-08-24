@@ -2,8 +2,15 @@ const user = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const {  validationResult } = require("express-validator");
+
+
 exports.createUser = (req, res, next) => {
   console.log("On est dans le POST REGISTER");
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
   bcrypt.hash(req.body.password, 10).then((hash) => {
     const newUser = new user({
       email: req.body.email,
@@ -24,6 +31,10 @@ exports.createUser = (req, res, next) => {
 };
 exports.loginUser = (req, res, next) => {
   console.log("On est dans le POST LOGIN");
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
   user.findOne({ email: req.body.email }).then((user) => {
     if (user === null) {
       res.status(401).json({ message: "Wrong email/password" });
