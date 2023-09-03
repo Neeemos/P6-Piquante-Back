@@ -8,7 +8,9 @@ exports.getAllSauce = (req, res, next) => {
       res.status(200).json(sauces);
     })
     .catch((error) => {
-      res.status(500).json({ error: "An error occurred while fetching sauces" });
+      res
+        .status(400)
+        .json({ error: "An error occurred while fetching sauces" });
     });
 };
 
@@ -19,7 +21,8 @@ exports.createSauce = (req, res, next) => {
   const newSauce = new sauce({
     ...imageObject,
     userId: req.auth.userId,
-    imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+    imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename
+      }`,
   });
   newSauce
     .save()
@@ -54,36 +57,57 @@ exports.likeSauce = (req, res, next) => {
           if (!alreadyDisliked) {
             foundsauce.dislikes++;
             foundsauce.usersDisliked.push(req.body.userId);
+          } else {
+            return res.status(200).json({ message: "Already disliked!" });
           }
           if (alreadyLiked) {
             foundsauce.likes--;
-            foundsauce.usersLiked.splice(foundsauce.usersLiked.indexOf(req.body.userId), 1);
+            foundsauce.usersLiked.splice(
+              foundsauce.usersLiked.indexOf(req.body.userId),
+              1
+            );
           }
           break;
         case 1:
           if (!alreadyLiked) {
             foundsauce.likes++;
             foundsauce.usersLiked.push(req.body.userId);
+          } else {
+            return res.status(200).json({ message: "Already liked!" });
           }
           if (alreadyDisliked) {
             foundsauce.dislikes--;
-            foundsauce.usersDisliked.splice(foundsauce.usersDisliked.indexOf(req.body.userId), 1);
+            foundsauce.usersDisliked.splice(
+              foundsauce.usersDisliked.indexOf(req.body.userId),
+              1
+            );
           }
           break;
         case 0:
+          let like = false;
           if (alreadyLiked) {
+            like = true;
             foundsauce.likes--;
-            foundsauce.usersLiked.splice(foundsauce.usersLiked.indexOf(req.body.userId), 1);
+            foundsauce.usersLiked.splice(
+              foundsauce.usersLiked.indexOf(req.body.userId),
+              1
+            );
           }
           if (alreadyDisliked) {
+            like = true;
             foundsauce.dislikes--;
-            foundsauce.usersDisliked.splice(foundsauce.usersDisliked.indexOf(req.body.userId), 1);
+            foundsauce.usersDisliked.splice(
+              foundsauce.usersDisliked.indexOf(req.body.userId),
+              1
+            );
+          }
+          if (!like) {
+            return res.status(200).json({ message: "Not liked or Disliked" });
           }
           break;
         default:
           return res.status(400).json({ message: "Invalid request" });
       }
-
       sauce
         .updateOne(
           { _id: req.params.id },
@@ -106,7 +130,8 @@ exports.updateSauce = (req, res, next) => {
   const sauceObject = req.file
     ? {
       ...JSON.parse(req.body.sauce),
-      imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+      imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename
+        }`,
     }
     : { ...req.body };
 
@@ -121,7 +146,7 @@ exports.updateSauce = (req, res, next) => {
         sauce
           .updateOne(
             { _id: req.params.id },
-            { ...sauceObject, _id: req.params.id }
+            { ...sauceObject, _id: req.params.id, userId: req.auth.userId }
           )
           .then(() => res.status(200).json({ message: "Sauce edited!" }))
           .catch((error) => res.status(400).json({ error }));
@@ -144,7 +169,7 @@ exports.deleteSauce = (req, res, next) => {
           sauce
             .deleteOne({ _id: req.params.id })
             .then(() => {
-              res.status(200).json({ message: "Sauce deleted!" });
+              res.status(204).send();
             })
             .catch((error) => res.status(400).json({ error }));
         });

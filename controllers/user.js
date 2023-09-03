@@ -20,26 +20,26 @@ exports.createUser = (req, res, next) => {
 };
 
 exports.loginUser = (req, res, next) => {
-  user.findOne({ email: req.body.email }).then((user) => {
-
-    bcrypt
-      .compare(req.body.password, user.password)
-      .then((valid) => {
-        if (!valid) {
-          res.status(401).json({ message: "Verify credentials" })
-        }
-        res.status(200).json({
-          userId: user._id,
-          token: jwt.sign({ userId: user._id }, process.env.TOKEN_SECRET, {
-            expiresIn: "24h",
-          }),
+  user
+    .findOne({ email: req.body.email })
+    .then((user) => {
+      bcrypt
+        .compare(req.body.password, user.password)
+        .then((valid) => {
+          if (!valid) {
+            res.status(401).json({ message: "Verify credentials" });
+          }
+          res.status(200).json({
+            userId: user._id,
+            token: jwt.sign({ userId: user._id }, process.env.TOKEN_SECRET, {
+              expiresIn: "24h",
+            }),
+          });
+        })
+        .catch((error) => {
+          res.status(500).json({ error });
         });
-
-      })
-      .catch((error) => {
-        res.status(500).json({ message: "Verify credentials" });
-      });
-  })
+    })
     .catch((error) => {
       res.status(500).json({ message: "Verify credentials" });
     });
