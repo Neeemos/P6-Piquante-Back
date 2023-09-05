@@ -143,13 +143,16 @@ exports.updateSauce = (req, res, next) => {
       if (foundSauce.userId !== req.auth.userId) {
         res.status(401).json({ message: "Not authorized" });
       } else {
-        sauce
-          .updateOne(
-            { _id: req.params.id },
-            { ...sauceObject, _id: req.params.id, userId: req.auth.userId }
-          )
-          .then(() => res.status(200).json({ message: "Sauce edited!" }))
-          .catch((error) => res.status(400).json({ error }));
+        const filename = foundSauce.imageUrl.split("/images/")[1];
+        fs.unlink(`images/${filename}`, () => {
+          sauce
+            .updateOne(
+              { _id: req.params.id },
+              { ...sauceObject, _id: req.params.id, userId: req.auth.userId }
+            )
+            .then(() => res.status(200).json({ message: "Sauce edited!" }))
+            .catch((error) => res.status(400).json({ error }));
+        });
       }
     })
     .catch((error) => {
