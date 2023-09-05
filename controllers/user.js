@@ -23,6 +23,9 @@ exports.loginUser = (req, res, next) => {
   user
     .findOne({ email: req.body.email })
     .then((user) => {
+      if (!user) {
+        return res.status(401).json({ message: "Verify credentials" });
+      }
       bcrypt
         .compare(req.body.password, user.password)
         .then((valid) => {

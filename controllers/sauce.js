@@ -9,7 +9,7 @@ exports.getAllSauce = (req, res, next) => {
     })
     .catch((error) => {
       res
-        .status(400)
+        .status(500)
         .json({ error: "An error occurred while fetching sauces" });
     });
 };
@@ -41,7 +41,7 @@ exports.getSauce = (req, res, next) => {
       res.status(200).json(foundsauce);
     })
     .catch((error) => {
-      res.status(400).json({ error });
+      res.status(500).json({ error });
     });
 };
 
